@@ -1,56 +1,98 @@
 import { useEffect, useState } from 'react';
-import './App.css';
-import { filterDeprecatedData } from './utils/dataUtils';
+import { getFeaturesBySearch } from './utils/helperFunctions';
 import { CategoriesList } from './Modules/Categories/CategoriesList';
-import { Search } from './Modules/Search/Search';
+import { Header } from './Modules/Header/Header';
+import { Box } from '@mui/material';
+import { CategoryFeatures } from './Modules/CategoryFeatures/CategoryFeatures';
+import { getAndSetCategoriesAndFeatures } from './utils/apiManager';
 
-function App() {
-  const [featureCategories, setFeatureCategories] = useState([])
+const App = () => {
+  const [categories, setCategories] = useState([])
   const [features, setFeatures] = useState([])
-
-  const fetchFeatures = () => {
-    fetch('./FeaturesEndpointResponse.json')
-        .then(response => response.json())
-        .then(({ data: { features } }) => {
-          setFeatures(filterDeprecatedData(features))
-        })
-        .catch(error => console.trace(`Error fetching features: ${error}`))
-}
-
-  const fetchFeatureCategories = () => {
-    fetch('./FeaturesEndpointResponse.json')
-        .then(response => response.json())
-        .then(({ data: { featureCategories } }) => {
-          featureCategories.sort((a, b)=> a.sortOrder - b.sortOrder)
-          setFeatureCategories(filterDeprecatedData(featureCategories))
-        })
-        .catch(error => console.trace(`Error fetching features: ${error}`))
-}
+  const [selectedCategory, setSelectedCategory] = useState({})
+  const [featuresByCategory, setFeaturesByCategory] = useState([])
+  const [search, setSearch] = useState('')
+  const [searchResults, setSearchResults] = useState([])
 
   useEffect(() => {
-    fetchFeatures()
-    fetchFeatureCategories()
+    getAndSetCategoriesAndFeatures(
+      setFeatures, 
+      setSelectedCategory, 
+      setCategories
+    )
   }, [])
 
+  const getAndSetFeaturesByCategory = () => {
+    const filteredFeatures = features.filter((feature) => {
+      return feature.categorySid?.id === selectedCategory.sid.id
+    })
+    setFeaturesByCategory(filteredFeatures)
+  }
+
   useEffect(() => {
-    console.log(features.length && 'Features Set')
-    console.log(featureCategories.length && 'Category Features Set')
-  }, [features, featureCategories])
+    if (selectedCategory) {
+      getAndSetFeaturesByCategory()
+    }
+  }, [selectedCategory])
+
+  const handleSearch = () => {
+    const results = getFeaturesBySearch(search, features)
+    setSearchResults(results)
+  }
+  
+  useEffect(() => {
+    if (search) {
+      handleSearch()
+    }
+  }, [search])
 
   return (
-    <div className="App">
-      <header className="App-header">
+    <Box
+      sx={{
+        display: 'grid',
+        width: '100%',
+        minHeight: '100vh',
+        backgroundColor: '#cce4f9',
+        gridTemplate: `
+          "header header header"
+          "category-menu content content"
+          "category-menu content content"
+          "category-menu content content"
+        `,
+        gridTemplateColumns: 'auto minmax(0, 1fr) auto',
+        gridTemplateRows: '100px 1fr 50px auto'
+      }}
+    >
 
-        <div>
-          <CategoriesList categories={featureCategories} />
-        </div>
+      <Header gridAreaName='header' search={search} setSearch={setSearch} />
 
-        <div>
-          <Search />
-        </div>
+      <Box sx={{ 
+          gridArea: 'category-menu',
+          marginTop: 4,
+          paddingX: 4, 
+          height: '80vh', 
+          overflow: 'hidden', 
+          overflowY: 'auto'
+        }}
+      >
+        <CategoriesList 
+          categories={categories} 
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          isSearching={!!!search}
+          setSearch={setSearch}
+        />
+      </Box>
 
-      </header>
-    </div>
+      <Box sx={{ gridArea: 'content', paddingRight: 8, paddingLeft: 2, marginTop: 4, height: '80vh', overflow: 'hidden', overflowY: 'auto' }}>
+        <CategoryFeatures 
+          selectedCategory={selectedCategory} 
+          featuresByCategory={featuresByCategory} 
+          search={search} 
+          searchResults={searchResults}
+        />
+      </Box>
+    </Box>
   );
 }
 
