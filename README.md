@@ -6,4 +6,5 @@ npm start
 ```
 
 **Wireframe**
+
 ![Wireframe](./public/IPaC%20Wireframe.png)
