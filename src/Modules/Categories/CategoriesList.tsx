@@ -1,21 +1,30 @@
 import { Paper, Stack } from "@mui/material"
+import { Category } from "src/utils/types"
+
+type CategoryListProps = {
+    categories: Category[]
+    selectedCategorySidId: number
+    setSelectedCategory: (category: Category) => void
+    isSearching: boolean
+    setSearch: (searchString: string) => void
+}
 
 export const CategoriesList = ({ 
     categories, 
-    selectedCategory, 
+    selectedCategorySidId, 
     setSelectedCategory, 
     isSearching, 
     setSearch 
-}) => {
+}: CategoryListProps) => {
 
-    const currentCategoryColor = (categorySidId) => {
-        if (categorySidId === selectedCategory.sid.id && isSearching) {
+    const currentCategoryColor = (categorySidId: number) => {
+        if (categorySidId === selectedCategorySidId && isSearching) {
             return '#828282'
         }
     }
 
-    const hoverColor = (categorySidId) => {
-        if (categorySidId === selectedCategory.sid.id) {
+    const hoverColor = (categorySidId: number) => {
+        if (categorySidId === selectedCategorySidId) {
             return {}
         } else {
             return { cursor: 'pointer', backgroundColor: '#e0e0e0' }

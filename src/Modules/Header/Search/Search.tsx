@@ -1,20 +1,25 @@
 import { TextField } from "@mui/material"
 import { useEffect, useRef } from "react"
 
-export const Search = ({ search, setSearch }) => {
-    const searchRef = useRef(null)
+type SearchProps = {
+  search: string
+  setSearch: (searchString: string) => void
+}
+
+export const Search = ({ search, setSearch }: SearchProps) => {
+    const searchRef = useRef<HTMLInputElement>(null)
 
     useEffect(() => {
-        const handleKeyPress = (e) => {
+        const handleKeyPress = (e: { getModifierState: (arg0: string) => any; code: string; preventDefault: () => void }) => {
           const modifierPressed = e.getModifierState &&
             (e.getModifierState('Meta') || e.getModifierState('Control'))
 
-          if (modifierPressed && e.code == 'KeyS') {
+          if (modifierPressed && e.code == 'KeyS' && searchRef.current) {
             e.preventDefault()
             searchRef.current.focus()
           }
               
-          if (e.code == 'Escape') {
+          if (e.code == 'Escape' && searchRef.current) {
             e.preventDefault()
             searchRef.current.blur()
           }

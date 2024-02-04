@@ -2,7 +2,7 @@
 
 To run application:
 ```bash
-npm start
+npm install && npm start
 ```
 
 **Wireframe**
