@@ -12,6 +12,7 @@ export const Header = ({ search, setSearch }: HeaderProps) => {
         <AppBar 
             variant='elevation' 
             sx={{ 
+                gridArea: 'header',
                 bgcolor: '#323A45', 
                 padding: '1rem' 
             }}
