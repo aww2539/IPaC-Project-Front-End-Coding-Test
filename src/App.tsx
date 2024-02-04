@@ -5,14 +5,15 @@ import { Header } from './Modules/Header/Header';
 import { Box } from '@mui/material';
 import { CategoryFeatures } from './Modules/CategoryFeatures/CategoryFeatures';
 import { getAndSetCategoriesAndFeatures } from './utils/apiManager';
+import { Category, Feature } from './utils/types';
 
 const App = () => {
-  const [categories, setCategories] = useState([])
-  const [features, setFeatures] = useState([])
-  const [selectedCategory, setSelectedCategory] = useState({})
-  const [featuresByCategory, setFeaturesByCategory] = useState([])
-  const [search, setSearch] = useState('')
-  const [searchResults, setSearchResults] = useState([])
+  const [categories, setCategories] = useState<Category[]>([])
+  const [features, setFeatures] = useState<Feature[]>([])
+  const [selectedCategory, setSelectedCategory] = useState<Category>()
+  const [featuresByCategory, setFeaturesByCategory] = useState<Feature[]>([])
+  const [search, setSearch] = useState<string>('')
+  const [searchResults, setSearchResults] = useState<Feature[]>([])
 
   useEffect(() => {
     getAndSetCategoriesAndFeatures(
@@ -24,7 +25,7 @@ const App = () => {
 
   const getAndSetFeaturesByCategory = () => {
     const filteredFeatures = features.filter((feature) => {
-      return feature.categorySid?.id === selectedCategory.sid.id
+      return feature.categorySid?.id === selectedCategory?.sid.id
     })
     setFeaturesByCategory(filteredFeatures)
   }
@@ -64,7 +65,7 @@ const App = () => {
       }}
     >
 
-      <Header gridAreaName='header' search={search} setSearch={setSearch} />
+      <Header search={search} setSearch={setSearch} />
 
       <Box sx={{ 
           gridArea: 'category-menu',
@@ -75,22 +76,35 @@ const App = () => {
           overflowY: 'auto'
         }}
       >
-        <CategoriesList 
-          categories={categories} 
-          selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
-          isSearching={!!!search}
-          setSearch={setSearch}
-        />
+        {categories.length >= 1 && selectedCategory && (
+          <CategoriesList 
+            categories={categories} 
+            selectedCategorySidId={selectedCategory.sid?.id}
+            setSelectedCategory={setSelectedCategory}
+            isSearching={!!!search}
+            setSearch={setSearch}
+          />
+        )}
       </Box>
 
-      <Box sx={{ gridArea: 'content', paddingRight: 8, paddingLeft: 2, marginTop: 4, height: '80vh', overflow: 'hidden', overflowY: 'auto' }}>
-        <CategoryFeatures 
-          selectedCategory={selectedCategory} 
-          featuresByCategory={featuresByCategory} 
-          search={search} 
-          searchResults={searchResults}
-        />
+      <Box sx={{ 
+        gridArea: 'content', 
+        paddingRight: 8, 
+        paddingLeft: 2, 
+        marginTop: 4, 
+        height: '80vh', 
+        overflow: 'hidden', 
+        overflowY: 'auto' 
+        }}
+      >
+        {selectedCategory && (
+          <CategoryFeatures 
+            selectedCategory={selectedCategory} 
+            featuresByCategory={featuresByCategory} 
+            search={search} 
+            searchResults={searchResults}
+          />
+          )}
       </Box>
     </Box>
   );
